@@ -1,9 +1,10 @@
 import { v2 as cloudinary } from "cloudinary";
-
 import { Course } from "../models/course.model.js";
+import { Purchase } from "../models/purchase.model.js";
 
 // Define the createCourse function
 export const createCourse = async (req, res) => {
+  const adminId = req.adminId;
   // console.log("Request body:", req.body); // Debugging: Log the request body
 
   // Destructure the request body
@@ -50,6 +51,7 @@ export const createCourse = async (req, res) => {
         public_id: coud_response.public_id,
         url: coud_response.url,
       }, // Use the Cloudinary URL
+      creatorId: adminId,
     };
 
     // Save course to database
@@ -67,6 +69,7 @@ export const createCourse = async (req, res) => {
 //define updateCourse function
 
 export const updateCourse = async (req, res) => {
+  const adminId = req.adminId;
   //firstly we take id:
   //id is useful for update the data in database
 
@@ -77,6 +80,7 @@ export const updateCourse = async (req, res) => {
     const course = await Course.updateOne(
       {
         _id: courseId,
+        creatorId: adminId,
       },
       {
         title,
@@ -89,7 +93,7 @@ export const updateCourse = async (req, res) => {
       }
     );
 
-    res.status(201).json({ message: "Course updated successfully" });
+    res.status(201).json({ message: "Course updated successfully", course });
   } catch (error) {
     res.status(500).json({ errors: "Error in  course updating" });
     console.log("Error in course updating", error);
@@ -97,6 +101,7 @@ export const updateCourse = async (req, res) => {
 };
 
 export const DeleteCourse = async (req, res) => {
+  const adminId = req.adminId;
   //firstly we take id:
   //id is useful for delete the data in database
 
@@ -105,6 +110,7 @@ export const DeleteCourse = async (req, res) => {
   try {
     const course = await Course.findOneAndDelete({
       _id: courseId,
+      creatorId: adminId,
     });
 
     if (!course) {
@@ -151,5 +157,36 @@ export const courseDetails = async (req, res) => {
   } catch (error) {
     res.status(500).json({ errors: "error in getting courses" });
     console.log("error in course details", error);
+  }
+};
+
+export const buyCourses = async (req, res) => {
+  // We require userId that is found in req
+  const { userId } = req;
+  const { courseId } = req.params; // It is found in req.params
+
+  try {
+    const course = await Course.findById(courseId); // It is in our database
+    if (!course) {
+      return res.status(404).json({ error: "Course not found" });
+    }
+
+    // If user has bought a course before
+    // Check if the user has already purchased this course
+    const existingPurchase = await Purchase.findOne({ userId, courseId });
+    if (existingPurchase) {
+      return res
+        .status(400)
+        .json({ error: "User has already purchased this course" });
+    }
+    // If user is not buying before, we create it
+    const newPurchase = new Purchase({ userId, courseId });
+    await newPurchase.save();
+    res
+      .status(201)
+      .json({ message: "Course purchased successfully", newPurchase });
+  } catch (error) {
+    res.status(500).json({ error: "Error in course buying" });
+    console.log("error in course buying", error);
   }
 };

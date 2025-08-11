@@ -2,14 +2,16 @@ import express from "express";
 import mongoose from "mongoose";
 import courseRoute from "./routes/course.routes.js";
 import userRoute from "./routes/user.routes.js";
+import adminRoute from "./routes/admin.route.js";
 import { v2 as cloudinary } from "cloudinary";
 import fileUpload from "express-fileupload";
+import cookieParser from "cookie-parser";
 
 const app = express();
 // Middleware to parse JSON and URL-encoded bodies
 app.use(express.json()); // Middleware to parse JSON bodies
 // app.use(express.urlencoded({ extended: true })); // Middleware to parse URL-encoded bodies
-
+app.use(cookieParser());
 //file upload code with expressfile upload
 
 app.use(
@@ -35,6 +37,7 @@ mongoose
 // Define routes
 app.use("/api/v1/course", courseRoute);
 app.use("/api/v1/user", userRoute);
+app.use("/api/v1/admin", adminRoute);
 
 //cloudinary values
 const cloudname = "dtfn5evgt";
