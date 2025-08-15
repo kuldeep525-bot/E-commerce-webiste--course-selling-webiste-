@@ -6,6 +6,9 @@ import adminRoute from "./routes/admin.route.js";
 import { v2 as cloudinary } from "cloudinary";
 import fileUpload from "express-fileupload";
 import cookieParser from "cookie-parser";
+import cors from "cors";
+
+const frontedurl = " http://localhost:5173";
 
 const app = express();
 // Middleware to parse JSON and URL-encoded bodies
@@ -23,6 +26,17 @@ app.use(
 
 const port = 4000;
 const MONGO_URI = "mongodb://localhost:27017/E-commerce";
+
+//connected backend to fronted with cors
+
+app.use(
+  cors({
+    origin: frontedurl,
+    credentials: true,
+    methods: ["GET", "POST", "DELETE", "PUT"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+  })
+);
 
 // Connect to MongoDB
 mongoose
