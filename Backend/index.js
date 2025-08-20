@@ -25,7 +25,8 @@ app.use(
 );
 
 const port = 4000;
-const MONGO_URI = "mongodb://localhost:27017/E-commerce";
+const MONGO_URI =
+  "mongodb+srv://bachelor97797:TrWISxD4JsYWoXWd@cluster0.ak7q8gz.mongodb.net/course_selling_site";
 
 //connected backend to fronted with cors
 

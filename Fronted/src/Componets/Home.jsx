@@ -12,6 +12,42 @@ import "slick-carousel/slick/slick-theme.css";
 function Home() {
   //fetch the data into the backend
   const [course, setcourse] = useState([]);
+
+  //user loged in (use state)
+
+  const [isLogedin, setlogedin] = useState(false);
+
+  //recive a token in login.jsx with useeffect hook
+
+  useEffect(()=>{
+    const token=localStorage.getItem("user");
+    if(token)
+    {
+      setlogedin(true)
+    }
+    else{
+      setlogedin(false)
+    }
+  },[])
+
+  //create function of logout
+
+  const handlelogout = async () => {
+    try {
+      const response = await axios.get(
+        "http://localhost:4000/api/v1/user/logout",
+        {
+          withCredentials: true,
+        }
+      );
+      alert(response.data.message);
+      setlogedin(false); //if your log out
+    } catch (error) {
+      console.log("Error in logging out", error);
+      alert("Error in logout" || error.response.data.errors);
+    }
+  };
+
   useEffect(() => {
     const Fetchcourses = async () => {
       try {
@@ -38,7 +74,7 @@ function Home() {
     slidesToShow: 4,
     slidesToScroll: 4,
     initialSlide: 0,
-    autoplay:true,
+    autoplay: true,
     responsive: [
       {
         breakpoint: 1024,
@@ -68,7 +104,7 @@ function Home() {
   };
 
   return (
-    <div className="bg-gradient-to-r from-black to to-blue-950 h-screen-full">
+    <div className="bg-gradient-to-r from-black to to-blue-950 h-screen-full ">
       <div className="h-screen-full text-white container mx-auto p-6 space-y-10">
         {/* header */}
         <header className="flex items-center justify-between">
@@ -81,18 +117,31 @@ function Home() {
             <h1 className="text-2xl text-orange-500 font-bold">TECH-COURSES</h1>
           </div>
           <div className="space-x-5">
-            <Link
-              to={"/Login"}
-              className="bg-transparent text-white  border px-4 py-2 border-white  cursor-pointer hover:bg-orange-500 hover:border-none hover:text-black rounded-md hover:font-bold duration-300"
-            >
-              Login
-            </Link>
-            <Link
-              to={"/Signup"}
-              className="bg-transparent text-white  border px-4 py-2 border-white  cursor-pointer hover:bg-orange-500 hover:border-none hover:text-black rounded-md hover:font-bold duration-300"
-            >
-              Signup
-            </Link>
+
+            {/* //if user logged in */}
+            {isLogedin ? (
+              <button
+                onClick={handlelogout}
+                className="bg-transparent text-white border px-4 py-2 border-white cursor-pointer hover:bg-orange-500 hover:border-none hover:text-black rounded-md hover:font-bold duration-300"
+              >
+                Logout
+              </button>
+            ) : (
+              <>
+                <Link
+                  to="/login"
+                  className="bg-transparent text-white border px-4 py-2 border-white cursor-pointer hover:bg-orange-500 hover:border-none hover:text-black rounded-md hover:font-bold duration-300"
+                >
+                  Login
+                </Link>
+                <Link
+                  to="/signup"
+                  className="bg-transparent text-white border px-4 py-2 border-white cursor-pointer hover:bg-orange-500 hover:border-none hover:text-black rounded-md hover:font-bold duration-300"
+                >
+                  Signup
+                </Link>
+              </>
+            )}
           </div>
         </header>
 
@@ -115,16 +164,24 @@ function Home() {
           </div>
         </section>
         <section>
-         <Slider {...settings}>
+          <Slider {...settings}>
             {course.map((courses) => {
               return (
                 <div key={courses._id} className="p-4">
                   <div className="relative flex-shrink-0 w-85 transition-transform duration-300 transform hover:scale-105">
                     <div className="bg-gray-900 rounded-lg overflow-hidden">
-                      <img className="h-32 w-full object-contain pt-5" src={courses.image.url} alt="image" />
+                      <img
+                        className="h-32 w-full object-contain pt-5"
+                        src={courses.image.url}
+                        alt="image"
+                      />
                       <div className="p-6 text-center">
-                        <h2 className="text-xl font-bold text-white">{courses.title}</h2>
-                        <button className="mt-4 bg-orange-500 text-black font-semibold py-2 px-4 rounded-full hover:bg-blue-500 hover:text-white duration-300 cursor-pointer">Enroll Now</button>
+                        <h2 className="text-xl font-bold text-white">
+                          {courses.title}
+                        </h2>
+                        <button className="mt-4 bg-orange-500 text-black font-semibold py-2 px-4 rounded-full hover:bg-blue-500 hover:text-white duration-300 cursor-pointer">
+                          Enroll Now
+                        </button>
                       </div>
                     </div>
                   </div>

@@ -42,7 +42,7 @@ export const singup = async (req, res) => {
     const existingUser = await User.findOne({ email: email });
 
     if (existingUser) {
-      return res.status(400).json({ error: "User already exists" });
+      return res.status(400).json({ errors: "User already exists" });
     }
 
     const newUser = new User({

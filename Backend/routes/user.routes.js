@@ -12,7 +12,7 @@ const router = express.Router();
 //define routes
 router.post("/signup", singup);
 router.post("/login", login);
-router.post("/logout", logout);
+router.get("/logout", logout);
 router.get("/purchase", usemiddleware, purchase);
 
 export default router;
