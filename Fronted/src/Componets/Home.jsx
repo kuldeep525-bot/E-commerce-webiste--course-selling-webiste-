@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import logo from "../../public/logos.png";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { FaGithub } from "react-icons/fa";
 import { FaLinkedin } from "react-icons/fa";
 import { FaInstagram } from "react-icons/fa";
@@ -12,40 +12,45 @@ import "slick-carousel/slick/slick-theme.css";
 function Home() {
   //fetch the data into the backend
   const [course, setcourse] = useState([]);
+  const navigate = useNavigate();
 
   //user loged in (use state)
 
-  const [isLogedin, setlogedin] = useState(false);
+  const [isLogedin, setlogedin] = useState(null);
 
   //recive a token in login.jsx with useeffect hook
 
-  useEffect(()=>{
-    const token=localStorage.getItem("user");
-    if(token)
-    {
-      setlogedin(true)
+  useEffect(() => {
+    const token = localStorage.getItem("user");
+    if (token) {
+      setlogedin(true);
+    } else {
+      setlogedin(false);
     }
-    else{
-      setlogedin(false)
-    }
-  },[])
+  }, []);
 
   //create function of logout
 
   const handlelogout = async () => {
     try {
+      const token = localStorage.getItem("user");
       const response = await axios.get(
         "http://localhost:4000/api/v1/user/logout",
         {
           withCredentials: true,
+          headers: {
+            Authorization: `Bearer ${token}`, // Include the token in the headers
+          },
         }
       );
       alert(response.data.message);
-      setlogedin(false); //if your log out
+      localStorage.removeItem("user"); // Remove the token from localStorage
+      setlogedin(false); // Update the login state
     } catch (error) {
       console.log("Error in logging out", error);
-      alert("Error in logout" || error.response.data.errors);
+      alert("Error in logout" || error.response?.data?.errors);
     }
+    navigate("/");
   };
 
   useEffect(() => {
@@ -117,7 +122,6 @@ function Home() {
             <h1 className="text-2xl text-orange-500 font-bold">TECH-COURSES</h1>
           </div>
           <div className="space-x-5">
-
             {/* //if user logged in */}
             {isLogedin ? (
               <button
@@ -155,12 +159,12 @@ function Home() {
             Sharpen your skills with courses crafed by experts.
           </p>
           <div className="space-x-4">
-            <button className="bg-green-500 text-white rounded font-semibold hover:bg-white duration-300 hover:text-black px-4 py-2 cursor-pointer">
+            <Link to={"/courses"} className="bg-green-500 text-white rounded font-semibold hover:bg-white duration-300 hover:text-black px-4 py-2 cursor-pointer" >
               Explore Courses
-            </button>
-            <button className="bg-white text-black rounded font-semibold hover:bg-green-500 duration-300 hover:text-white px-4 py-2 cursor-pointer">
+          </Link>
+            <Link to={"https://www.youtube.com/@chaiaurcode"} className="bg-white text-black rounded font-semibold hover:bg-green-500 duration-300 hover:text-white px-4 py-2 cursor-pointer">
               Courses Videos
-            </button>
+            </Link>
           </div>
         </section>
         <section>

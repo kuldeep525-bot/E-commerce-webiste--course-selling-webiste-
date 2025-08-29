@@ -77,7 +77,7 @@ export const updateCourse = async (req, res) => {
   const { title, description, price, image } = req.body;
 
   try {
-    const course = await Course.updateOne(
+    const course = await Course.findOneAndUpdate(
       {
         _id: courseId,
         creatorId: adminId,
@@ -92,7 +92,11 @@ export const updateCourse = async (req, res) => {
         },
       }
     );
-
+    if (!course) {
+      return res
+        .status(404)
+        .json({ errors: "can't update course created by another admin" });
+    }
     res.status(201).json({ message: "Course updated successfully", course });
   } catch (error) {
     res.status(500).json({ errors: "Error in  course updating" });
@@ -114,7 +118,9 @@ export const DeleteCourse = async (req, res) => {
     });
 
     if (!course) {
-      res.status(404).json({ error: "course not found" });
+      res
+        .status(404)
+        .json({ error: "can't delete course created by another admin" });
     }
 
     res.status(201).json({ message: "Course deleted successfully" });
@@ -168,7 +174,7 @@ export const buyCourses = async (req, res) => {
   try {
     const course = await Course.findById(courseId); // It is in our database
     if (!course) {
-      return res.status(404).json({ error: "Course not found" });
+      return res.status(404).json({ errors: "Course not found" });
     }
 
     // If user has bought a course before
@@ -177,8 +183,9 @@ export const buyCourses = async (req, res) => {
     if (existingPurchase) {
       return res
         .status(400)
-        .json({ error: "User has already purchased this course" });
+        .json({ errors: "User has already purchased this course" });
     }
+
     // If user is not buying before, we create it
     const newPurchase = new Purchase({ userId, courseId });
     await newPurchase.save();
